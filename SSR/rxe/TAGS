@@ -1,0 +1,1188 @@
+
+rxe_task.h,366
+#define RXE_TASK_H8,221
+	TASK_STATE_START	11,248
+	TASK_STATE_BUSY	12,271
+	TASK_STATE_ARMED	13,294
+struct rxe_task 21,454
+	void			*obj;obj22,472
+	struct tasklet_struct	tasklet;23,486
+	int			state;24,518
+	spinlock_t		state_lock;25,532
+	void			*arg;arg26,587
+	int			(*func)func27,601
+	int			ret;28,628
+	char			name[name29,640
+	bool			destroyed;30,658
+
+rxe_queue.h,1171
+#define RXE_QUEUE_H8,222
+enum queue_type 49,2107
+	QUEUE_TYPE_TO_CLIENT,50,2125
+	QUEUE_TYPE_FROM_CLIENT,51,2148
+	QUEUE_TYPE_TO_DRIVER,52,2173
+	QUEUE_TYPE_FROM_DRIVER,53,2196
+struct rxe_queue 56,2225
+	struct rxe_dev		*rxe;rxe57,2244
+	struct rxe_queue_buf	*buf;buf58,2267
+	struct rxe_mmap_info	*ip;ip59,2295
+	size_t			buf_size;60,2322
+	size_t			elem_size;61,2342
+	unsigned int		log2_elem_size;62,2363
+	u32			index_mask;63,2394
+	enum queue_type		type;64,2413
+	u32			index;70,2637
+static inline u32 queue_next_index(89,3265
+static inline u32 queue_get_producer(94,3374
+static inline u32 queue_get_consumer(119,3885
+static inline int queue_empty(144,4396
+static inline int queue_full(152,4603
+static inline u32 queue_count(160,4813
+static inline void queue_advance_producer(169,5024
+static inline void queue_advance_consumer(198,5692
+static inline void *queue_producer_addr(queue_producer_addr227,6360
+static inline void *queue_consumer_addr(queue_consumer_addr235,6547
+static inline void *queue_addr_from_index(queue_addr_from_index243,6734
+static inline u32 queue_index_from_addr(249,6888
+static inline void *queue_head(queue_head256,7062
+
+rxe_mw.c,394
+int rxe_alloc_mw(8,154
+static void rxe_do_dealloc_mw(32,685
+int rxe_dealloc_mw(55,1024
+static int rxe_check_bind_mw(71,1321
+static void rxe_do_bind_mw(163,3645
+int rxe_bind_mw(192,4233
+static int rxe_check_invalidate_mw(246,5248
+static void rxe_do_invalidate_mw(258,5490
+int rxe_invalidate_mw(280,5902
+struct rxe_mw *rxe_lookup_mw(rxe_lookup_mw313,6466
+void rxe_mw_cleanup(336,7035
+
+rxe_verbs.h,8885
+#define RXE_VERBS_H8,222
+static inline int pkey_match(17,407
+static inline int psn_compare(28,672
+struct rxe_ucontext 36,785
+	struct ib_ucontext ibuc;37,807
+	struct rxe_pool_entry	pelem;38,833
+struct rxe_pd 41,867
+	struct ib_pd            ibpd;42,883
+	struct rxe_pool_entry	pelem;43,914
+struct rxe_ah 46,948
+	struct ib_ah		ibah;47,964
+	struct rxe_pool_entry	pelem;48,985
+	struct rxe_av		av;49,1015
+	bool			is_user;50,1035
+	int			ah_num;51,1052
+struct rxe_cqe 54,1071
+		struct ib_wc		ibwc;56,1097
+		struct ib_uverbs_wc	uibwc;57,1119
+struct rxe_cq 61,1156
+	struct ib_cq		ibcq;62,1172
+	struct rxe_pool_entry	pelem;63,1193
+	struct rxe_queue	*queue;queue64,1223
+	spinlock_t		cq_lock;65,1249
+	u8			notify;66,1271
+	bool			is_dying;67,1285
+	bool			is_user;68,1303
+	struct tasklet_struct	comp_task;69,1320
+enum wqe_state 72,1358
+	wqe_state_posted,73,1375
+	wqe_state_processing,74,1394
+	wqe_state_pending,75,1417
+	wqe_state_done,76,1437
+	wqe_state_error,77,1454
+struct rxe_sq 80,1476
+	int			max_wr;81,1492
+	int			max_sge;82,1507
+	int			max_inline;83,1523
+	spinlock_t		sq_lock;84,1542
+	struct rxe_queue	*queue;queue85,1582
+struct rxe_rq 88,1612
+	int			max_wr;89,1628
+	int			max_sge;90,1643
+	spinlock_t		producer_lock;91,1659
+	spinlock_t		consumer_lock;92,1714
+	struct rxe_queue	*queue;queue93,1769
+struct rxe_srq 96,1799
+	struct ib_srq		ibsrq;97,1816
+	struct rxe_pool_entry	pelem;98,1839
+	struct rxe_pd		*pd;pd99,1869
+	struct rxe_rq		rq;100,1890
+	u32			srq_num;101,1910
+	int			limit;103,1927
+	int			error;104,1941
+enum rxe_qp_state 107,1959
+	QP_STATE_RESET,108,1979
+	QP_STATE_INIT,109,1996
+	QP_STATE_READY,110,2012
+	QP_STATE_DRAIN,111,2029
+	QP_STATE_DRAINED,112,2062
+	QP_STATE_ERROR113,2096
+struct rxe_req_info 116,2116
+	enum rxe_qp_state	state;117,2138
+	int			wqe_index;118,2164
+	u32			psn;119,2182
+	int			opcode;120,2194
+	atomic_t		rd_atomic;121,2209
+	int			wait_fence;122,2231
+	int			need_rd_atomic;123,2250
+	int			wait_psn;124,2273
+	int			need_retry;125,2290
+	int			noack_pkts;126,2309
+	struct rxe_task		task;127,2328
+struct rxe_comp_info 130,2356
+	u32			psn;131,2379
+	int			opcode;132,2391
+	int			timeout;133,2406
+	int			timeout_retry;134,2422
+	int			started_retry;135,2444
+	u32			retry_cnt;136,2466
+	u32			rnr_retry;137,2484
+	struct rxe_task		task;138,2502
+enum rdatm_res_state 141,2530
+	rdatm_res_state_next,142,2553
+	rdatm_res_state_new,143,2576
+	rdatm_res_state_replay,144,2598
+struct resp_res 147,2627
+	int			type;148,2645
+	int			replay;149,2658
+	u32			first_psn;150,2673
+	u32			last_psn;151,2691
+	u32			cur_psn;152,2708
+	enum rdatm_res_state	state;153,2724
+			struct sk_buff	*skb;skb157,2774
+		} atomic;158,2798
+			struct rxe_mr	*mr;mr160,2821
+			u64		va_org;161,2843
+			u32		rkey;162,2859
+			u32		length;163,2873
+			u64		va;164,2889
+			u32		resid;165,2901
+		} read;166,2916
+struct rxe_resp_info 170,2934
+	enum rxe_qp_state	state;171,2957
+	u32			msn;172,2983
+	u32			psn;173,2995
+	u32			ack_psn;174,3007
+	int			opcode;175,3023
+	int			drop_msg;176,3038
+	int			goto_error;177,3055
+	int			sent_psn_nak;178,3074
+	enum ib_wc_status	status;179,3095
+	u8			aeth_syndrome;180,3122
+	struct rxe_recv_wqe	*wqe;wqe183,3164
+	u64			va;186,3223
+	u64			offset;187,3234
+	struct rxe_mr		*mr;mr188,3249
+	u32			resid;189,3270
+	u32			rkey;190,3284
+	u32			length;191,3297
+	u64			atomic_orig;192,3312
+		struct rxe_recv_wqe	wqe;196,3359
+		struct ib_sge		sge[sge197,3386
+	} srq_wqe;198,3421
+	struct resp_res		*resources;resources203,3533
+	unsigned int		res_head;204,3563
+	unsigned int		res_tail;205,3588
+	struct resp_res		*res;res206,3613
+	struct rxe_task		task;207,3637
+struct rxe_qp 210,3665
+	struct ib_qp		ibqp;211,3681
+	struct rxe_pool_entry	pelem;212,3702
+	struct ib_qp_attr	attr;213,3732
+	unsigned int		valid;214,3757
+	unsigned int		mtu;215,3779
+	bool			is_user;216,3799
+	struct rxe_pd		*pd;pd218,3817
+	struct rxe_srq		*srq;srq219,3838
+	struct rxe_cq		*scq;scq220,3861
+	struct rxe_cq		*rcq;rcq221,3883
+	enum ib_sig_type	sq_sig_type;223,3906
+	struct rxe_sq		sq;225,3938
+	struct rxe_rq		rq;226,3958
+	struct socket		*sk;sk228,3979
+	u32			dst_cookie;229,4000
+	u16			src_port;230,4019
+	struct rxe_av		pri_av;232,4037
+	struct rxe_av		alt_av;233,4061
+	struct list_head	grp_list;236,4142
+	spinlock_t		grp_lock;237,4170
+	struct sk_buff_head	req_pkts;239,4215
+	struct sk_buff_head	resp_pkts;240,4246
+	struct rxe_req_info	req;242,4279
+	struct rxe_comp_info	comp;243,4305
+	struct rxe_resp_info	resp;244,4333
+	atomic_t		ssn;246,4362
+	atomic_t		skb_out;247,4378
+	int			need_req_skb;248,4398
+	struct timer_list retrans_timer;255,4614
+	u64 qp_timeout_jiffies;256,4648
+	struct timer_list rnr_nak_timer;259,4710
+	spinlock_t		state_lock;261,4745
+	struct execute_work	cleanup_work;263,4807
+enum rxe_mr_state 266,4846
+	RXE_MR_STATE_INVALID,267,4866
+	RXE_MR_STATE_FREE,268,4889
+	RXE_MR_STATE_VALID,269,4909
+enum rxe_mr_copy_dir 272,4934
+	RXE_TO_MR_OBJ,273,4957
+	RXE_FROM_MR_OBJ,274,4973
+enum rxe_mr_lookup_type 277,4995
+	RXE_LOOKUP_LOCAL,278,5021
+	RXE_LOOKUP_REMOTE,279,5040
+#define RXE_BUF_PER_MAP	282,5064
+struct rxe_phys_buf 284,5132
+	u64      addr;285,5154
+	u64      size;286,5170
+struct rxe_map 289,5190
+	struct rxe_phys_buf	buf[buf290,5207
+struct rxe_map_set 293,5254
+	struct rxe_map		**map;map294,5275
+	u64			va;295,5299
+	u64			iova;296,5310
+	size_t			length;297,5323
+	u32			offset;298,5341
+	u32			nbuf;299,5356
+	int			page_shift;300,5369
+	int			page_mask;301,5388
+static inline int rkey_is_mw(304,5410
+struct rxe_mr 311,5547
+	struct rxe_pool_entry	pelem;312,5563
+	struct ib_mr		ibmr;313,5593
+	struct ib_umem		*umem;umem315,5615
+	u32			lkey;317,5640
+	u32			rkey;318,5653
+	enum rxe_mr_state	state;319,5666
+	enum ib_mr_type		type;320,5692
+	int			access;321,5716
+	int			map_shift;323,5732
+	int			map_mask;324,5750
+	u32			num_buf;326,5768
+	u32			max_buf;328,5785
+	u32			num_map;329,5801
+	atomic_t		num_mw;331,5818
+	struct rxe_map_set	*cur_map_set;cur_map_set333,5838
+	struct rxe_map_set	*next_map_set;next_map_set334,5872
+enum rxe_mw_state 337,5911
+	RXE_MW_STATE_INVALID	338,5931
+	RXE_MW_STATE_FREE	339,5977
+	RXE_MW_STATE_VALID	340,6017
+struct rxe_mw 343,6063
+	struct ib_mw		ibmw;344,6079
+	struct rxe_pool_entry	pelem;345,6100
+	spinlock_t		lock;346,6130
+	enum rxe_mw_state	state;347,6149
+	struct rxe_qp		*qp;qp348,6175
+	struct rxe_mr		*mr;mr349,6214
+	u32			rkey;350,6235
+	int			access;351,6248
+	u64			addr;352,6263
+	u64			length;353,6276
+struct rxe_mc_grp 356,6295
+	struct rxe_pool_entry	pelem;357,6315
+	spinlock_t		mcg_lock;358,6345
+	struct rxe_dev		*rxe;rxe359,6386
+	struct list_head	qp_list;360,6409
+	union ib_gid		mgid;361,6436
+	int			num_qp;362,6457
+	u32			qkey;363,6472
+	u16			pkey;364,6485
+struct rxe_mc_elem 367,6502
+	struct rxe_pool_entry	pelem;368,6523
+	struct list_head	qp_list;369,6553
+	struct list_head	grp_list;370,6580
+	struct rxe_qp		*qp;qp371,6608
+	struct rxe_mc_grp	*grp;grp372,6629
+struct rxe_port 375,6658
+	struct ib_port_attr	attr;376,6676
+	__be64			port_guid;377,6703
+	__be64			subnet_prefix;378,6724
+	spinlock_t		port_lock;379,6749
+	unsigned int		mtu_cap;380,6790
+	u32			qp_smi_index;382,6833
+	u32			qp_gsi_index;383,6854
+struct rxe_dev 386,6879
+	struct ib_device	ib_dev;387,6896
+	struct ib_device_attr	attr;388,6922
+	int			max_ucontext;389,6951
+	int			max_inline_data;390,6972
+	struct mutex	usdev_lock;391,6996
+	struct net_device	*ndev;ndev393,7023
+	int			xmit_errors;395,7050
+	struct rxe_pool		uc_pool;397,7071
+	struct rxe_pool		pd_pool;398,7098
+	struct rxe_pool		ah_pool;399,7125
+	struct rxe_pool		srq_pool;400,7152
+	struct rxe_pool		qp_pool;401,7180
+	struct rxe_pool		cq_pool;402,7207
+	struct rxe_pool		mr_pool;403,7234
+	struct rxe_pool		mw_pool;404,7261
+	struct rxe_pool		mc_grp_pool;405,7288
+	struct rxe_pool		mc_elem_pool;406,7319
+	spinlock_t		pending_lock;408,7352
+	struct list_head	pending_mmaps;409,7405
+	spinlock_t		mmap_offset_lock;411,7439
+	u64			mmap_offset;412,7494
+	atomic64_t		stats_counters[stats_counters414,7515
+	struct rxe_port		port;416,7566
+	struct crypto_shash	*tfm;tfm417,7590
+static inline void rxe_counter_inc(420,7621
+static inline struct rxe_dev *to_rdev(to_rdev425,7751
+static inline struct rxe_ucontext *to_ruc(to_ruc430,7881
+static inline struct rxe_pd *to_rpd(to_rpd435,8017
+static inline struct rxe_ah *to_rah(to_rah440,8135
+static inline struct rxe_srq *to_rsrq(to_rsrq445,8253
+static inline struct rxe_qp *to_rqp(to_rqp450,8379
+static inline struct rxe_cq *to_rcq(to_rcq455,8497
+static inline struct rxe_mr *to_rmr(to_rmr460,8615
+static inline struct rxe_mw *to_rmw(to_rmw465,8733
+static inline struct rxe_pd *rxe_ah_pd(rxe_ah_pd470,8851
+static inline struct rxe_pd *mr_pd(mr_pd475,8943
+static inline struct rxe_pd *rxe_mw_pd(rxe_mw_pd480,9031
+
+rxe_pool.c,1245
+static const struct rxe_type_info 10,238
+	const char *name;name11,274
+	size_t size;12,293
+	size_t elem_offset;13,307
+	void (*cleanup)cleanup14,328
+	enum rxe_pool_flags flags;15,374
+	u32 min_index;16,402
+	u32 max_index;17,418
+	size_t key_offset;18,434
+	size_t key_size;19,454
+} rxe_type_info[rxe_type_info20,472
+static inline const char *pool_name(pool_name99,2752
+static int rxe_pool_init_index(104,2856
+int rxe_pool_init(127,3272
+void rxe_pool_cleanup(168,4193
+static u32 alloc_index(177,4389
+static int rxe_insert_index(192,4802
+static int rxe_insert_key(219,5415
+int __rxe_add_key_locked(250,6102
+int __rxe_add_key(261,6338
+void __rxe_drop_key_locked(274,6622
+void __rxe_drop_key(281,6766
+int __rxe_add_index_locked(291,7007
+int __rxe_add_index(302,7201
+void __rxe_drop_index_locked(315,7473
+void __rxe_drop_index(323,7691
+void *rxe_alloc_locked(rxe_alloc_locked333,7936
+void *rxe_alloc(rxe_alloc358,8412
+int __rxe_add_to_pool(383,8881
+void rxe_elem_release(398,9152
+void *rxe_pool_get_index_locked(rxe_pool_get_index_locked417,9570
+void *rxe_pool_get_index(rxe_pool_get_index447,10134
+void *rxe_pool_get_key_locked(rxe_pool_get_key_locked459,10387
+void *rxe_pool_get_key(rxe_pool_get_key493,11016
+
+rxe_srq.c,92
+int rxe_srq_chk_attr(12,288
+int rxe_srq_from_init(74,1678
+int rxe_srq_from_attr(124,2828
+
+rxe_param.h,2194
+#define RXE_PARAM_H8,222
+#define DEFAULT_MAX_VALUE 12,281
+static inline enum ib_mtu rxe_mtu_int_to_enum(14,318
+static inline enum ib_mtu eth_mtu_int_to_enum(31,654
+enum rxe_device_param 39,829
+	RXE_MAX_MR_SIZE	40,853
+	RXE_PAGE_SIZE_CAP	41,881
+	RXE_MAX_QP_WR	42,915
+	RXE_DEVICE_CAP_FLAGS	43,953
+	RXE_MAX_SGE	57,1431
+	RXE_MAX_WQE_SIZE	58,1452
+	RXE_MAX_INLINE_DATA	60,1547
+	RXE_MAX_SGE_RD	62,1626
+	RXE_MAX_CQ	63,1650
+	RXE_MAX_LOG_CQE	64,1685
+	RXE_MAX_PD	65,1710
+	RXE_MAX_QP_RD_ATOM	66,1745
+	RXE_MAX_RES_RD_ATOM	67,1773
+	RXE_MAX_QP_INIT_RD_ATOM	68,1806
+	RXE_MAX_MCAST_GRP	69,1839
+	RXE_MAX_MCAST_QP_ATTACH	70,1867
+	RXE_MAX_TOT_MCAST_QP_ATTACH	71,1899
+	RXE_MAX_AH	72,1939
+	RXE_MIN_AH_INDEX	73,1983
+	RXE_MAX_AH_INDEX	74,2007
+	RXE_MAX_SRQ_WR	75,2040
+	RXE_MIN_SRQ_WR	76,2079
+	RXE_MAX_SRQ_SGE	77,2102
+	RXE_MIN_SRQ_SGE	78,2127
+	RXE_MAX_FMR_PAGE_LIST_LEN	79,2151
+	RXE_MAX_PKEYS	80,2185
+	RXE_LOCAL_CA_ACK_DELAY	81,2208
+	RXE_MAX_UCONTEXT	83,2240
+	RXE_NUM_PORT	85,2281
+	RXE_MIN_QP_INDEX	87,2303
+	RXE_MAX_QP_INDEX	88,2328
+	RXE_MAX_QP	89,2368
+	RXE_MIN_SRQ_INDEX	91,2423
+	RXE_MAX_SRQ_INDEX	92,2457
+	RXE_MAX_SRQ	93,2498
+	RXE_MIN_MR_INDEX	95,2555
+	RXE_MAX_MR_INDEX	96,2588
+	RXE_MAX_MR	97,2628
+	RXE_MIN_MW_INDEX	98,2682
+	RXE_MAX_MW_INDEX	99,2715
+	RXE_MAX_MW	100,2748
+	RXE_MAX_PKT_PER_ACK	102,2777
+	RXE_MAX_UNACKED_PSNS	104,2806
+	RXE_INFLIGHT_SKBS_PER_QP_HIGH	107,2877
+	RXE_INFLIGHT_SKBS_PER_QP_LOW	108,2914
+	RXE_NSEC_ARB_TIMER_DELAY	111,2993
+	RXE_VENDOR_ID	114,3078
+enum rxe_port_param 118,3153
+	RXE_PORT_GID_TBL_LEN	119,3175
+	RXE_PORT_PORT_CAP_FLAGS	120,3206
+	RXE_PORT_MAX_MSG_SZ	121,3250
+	RXE_PORT_BAD_PKEY_CNTR	122,3284
+	RXE_PORT_QKEY_VIOL_CNTR	123,3314
+	RXE_PORT_LID	124,3345
+	RXE_PORT_SM_LID	125,3366
+	RXE_PORT_SM_SL	126,3390
+	RXE_PORT_LMC	127,3413
+	RXE_PORT_MAX_VL_NUM	128,3434
+	RXE_PORT_SUBNET_TIMEOUT	129,3461
+	RXE_PORT_INIT_TYPE_REPLY	130,3492
+	RXE_PORT_ACTIVE_WIDTH	131,3523
+	RXE_PORT_ACTIVE_SPEED	132,3562
+	RXE_PORT_PKEY_TBL_LEN	133,3591
+	RXE_PORT_PHYS_STATE	134,3620
+	RXE_PORT_SUBNET_PREFIX	135,3672
+enum rxe_port_info_param 139,3769
+	RXE_PORT_INFO_VL_CAP	140,3796
+	RXE_PORT_INFO_MTU_CAP	141,3834
+	RXE_PORT_INFO_OPER_VL	142,3874
+
+rxe_mr.c,689
+u8 rxe_get_next_key(14,380
+int mr_check_range(25,506
+#define IB_ACCESS_REMOTE	47,954
+static void rxe_mr_init(51,1068
+static void rxe_mr_free_map_set(68,1596
+static int rxe_mr_alloc_map_set(79,1765
+static int rxe_mr_alloc(122,2650
+void rxe_mr_init_dma(154,3310
+int rxe_mr_init_user(164,3522
+int rxe_mr_init_fast(248,5216
+static void lookup_iova(270,5597
+void *iova_to_vaddr(iova_to_vaddr310,6445
+int rxe_mr_copy(350,7206
+int copy_data(427,8471
+int advance_dma_data(520,9901
+struct rxe_mr *lookup_mr(lookup_mr559,10698
+int rxe_invalidate_mr(581,11245
+int rxe_reg_fast_mr(630,12418
+int rxe_mr_set_page(664,13319
+int rxe_dereg_mr(684,13733
+void rxe_mr_cleanup(702,14087
+
+rxe_comp.c,1245
+enum comp_state 14,310
+	COMPST_GET_ACK,15,328
+	COMPST_GET_WQE,16,345
+	COMPST_COMP_WQE,17,362
+	COMPST_COMP_ACK,18,380
+	COMPST_CHECK_PSN,19,398
+	COMPST_CHECK_ACK,20,417
+	COMPST_READ,21,436
+	COMPST_ATOMIC,22,450
+	COMPST_WRITE_SEND,23,466
+	COMPST_UPDATE_COMP,24,486
+	COMPST_ERROR_RETRY,25,507
+	COMPST_RNR_RETRY,26,528
+	COMPST_ERROR,27,547
+	COMPST_EXIT,28,562
+	COMPST_DONE,29,635
+static char *comp_state_name[comp_state_name32,694
+static unsigned long rnrnak_usec[rnrnak_usec50,1233
+static inline unsigned long rnrnak_jiffies(85,2270
+static enum ib_wc_opcode wr_to_wc_opcode(91,2405
+void retransmit_timer(113,3164
+void rxe_comp_queue_pkt(123,3349
+static inline enum comp_state get_wqe(136,3656
+static inline void reset_retry_counters(164,4425
+static inline enum comp_state check_psn(171,4602
+static inline enum comp_state check_ack(210,5582
+static inline enum comp_state do_read(341,8726
+static inline enum comp_state do_atomic(361,9176
+static void make_send_cqe(380,9559
+static void do_complete(423,10790
+static inline enum comp_state complete_ack(457,11617
+static inline enum comp_state complete_wqe(503,12734
+static void rxe_drain_resp_pkts(524,13197
+static void free_pkt(546,13653
+int rxe_completer(557,13875
+
+rxe_opcode.c,127
+struct rxe_wr_opcode_info rxe_wr_opcode_info[rxe_wr_opcode_info14,357
+struct rxe_opcode_info rxe_opcode[rxe_opcode108,2579
+
+rxe_av.c,194
+void rxe_init_av(10,238
+int rxe_av_chk_attr(17,441
+void rxe_av_from_attr(44,1042
+void rxe_av_to_attr(58,1477
+void rxe_av_fill_ip_info(74,1959
+struct rxe_av *rxe_get_av(rxe_get_av102,2584
+
+rxe.h,218
+#define RXE_H8,216
+#undef pr_fmt11,245
+#define pr_fmt(13,266
+#define RXE_UVERBS_ABI_VERSION	38,848
+#define RXE_ROCE_V2_SPORT	40,883
+static inline struct rxe_dev *rxe_get_dev_from_net(rxe_get_dev_from_net51,1189
+
+rxe_net.h,120
+#define RXE_NET_H8,220
+struct rxe_recv_sockets 14,314
+	struct socket *sk4;sk415,340
+	struct socket *sk6;sk616,361
+
+rxe_mmap.c,254
+void rxe_mmap_release(17,393
+static void rxe_vma_open(38,865
+static void rxe_vma_close(45,995
+static const struct vm_operations_struct rxe_vm_ops 52,1144
+int rxe_mmap(63,1467
+struct rxe_mmap_info *rxe_create_mmap_info(rxe_create_mmap_info116,2814
+
+rxe_hw_counters.c,196
+static const struct rdma_stat_desc rxe_counter_descs[rxe_counter_descs9,177
+int rxe_ib_get_hw_stats(27,1084
+struct rdma_hw_stats *rxe_ib_alloc_hw_port_stats(rxe_ib_alloc_hw_port_stats43,1457
+
+rxe_sysfs.c,231
+static int sanitize_arg(11,305
+static int rxe_param_set_add(29,630
+static int rxe_param_set_remove(79,1602
+static const struct kernel_param_ops rxe_add_ops 108,2182
+static const struct kernel_param_ops rxe_remove_ops 112,2266
+
+rxe_hw_counters.h,514
+#define RXE_HW_COUNTERS_H7,159
+enum rxe_counters 13,272
+	RXE_CNT_SENT_PKTS,14,292
+	RXE_CNT_RCVD_PKTS,15,312
+	RXE_CNT_DUP_REQ,16,332
+	RXE_CNT_OUT_OF_SEQ_REQ,17,350
+	RXE_CNT_RCV_RNR,18,375
+	RXE_CNT_SND_RNR,19,393
+	RXE_CNT_RCV_SEQ_ERR,20,411
+	RXE_CNT_COMPLETER_SCHED,21,433
+	RXE_CNT_RETRY_EXCEEDED,22,459
+	RXE_CNT_RNR_RETRY_EXCEEDED,23,484
+	RXE_CNT_COMP_RETRY,24,513
+	RXE_CNT_SEND_ERR,25,534
+	RXE_CNT_LINK_DOWNED,26,553
+	RXE_CNT_RDMA_SEND,27,575
+	RXE_CNT_RDMA_RECV,28,595
+	RXE_NUM_OF_COUNTERS29,615
+
+rxe_task.c,201
+int __rxe_do_task(13,305
+void rxe_do_task(31,596
+int rxe_init_task(90,1869
+void rxe_cleanup_task(107,2239
+void rxe_run_task(127,2669
+void rxe_disable_task(138,2844
+void rxe_enable_task(143,2928
+
+rxe_cq.c,215
+int rxe_cq_chk_attr(11,287
+static void rxe_send_complete(42,798
+int rxe_cq_from_init(57,1160
+int rxe_cq_resize_queue(91,1901
+int rxe_cq_post(106,2243
+void rxe_cq_disable(144,3121
+void rxe_cq_cleanup(153,3297
+
+rxe_opcode.h,1609
+#define RXE_OPCODE_H8,223
+enum rxe_wr_mask 16,390
+	WR_INLINE_MASK	17,409
+	WR_ATOMIC_MASK	18,437
+	WR_SEND_MASK	19,465
+	WR_READ_MASK	20,491
+	WR_WRITE_MASK	21,517
+	WR_LOCAL_OP_MASK	22,544
+	WR_READ_OR_WRITE_MASK	24,574
+	WR_WRITE_OR_SEND_MASK	25,630
+	WR_ATOMIC_OR_READ_MASK	26,686
+#define WR_MAX_QPT	29,748
+struct rxe_wr_opcode_info 31,773
+	char			*name;name32,801
+	enum rxe_wr_mask	mask[mask33,816
+enum rxe_hdr_type 38,912
+	RXE_LRH,39,932
+	RXE_GRH,40,942
+	RXE_BTH,41,952
+	RXE_RETH,42,962
+	RXE_AETH,43,973
+	RXE_ATMETH,44,984
+	RXE_ATMACK,45,997
+	RXE_IETH,46,1010
+	RXE_RDETH,47,1021
+	RXE_DETH,48,1033
+	RXE_IMMDT,49,1044
+	RXE_PAYLOAD,50,1056
+	NUM_HDR_TYPES51,1070
+enum rxe_hdr_mask 54,1089
+	RXE_LRH_MASK	55,1109
+	RXE_GRH_MASK	56,1140
+	RXE_BTH_MASK	57,1171
+	RXE_IMMDT_MASK	58,1202
+	RXE_RETH_MASK	59,1237
+	RXE_AETH_MASK	60,1270
+	RXE_ATMETH_MASK	61,1303
+	RXE_ATMACK_MASK	62,1340
+	RXE_IETH_MASK	63,1377
+	RXE_RDETH_MASK	64,1410
+	RXE_DETH_MASK	65,1445
+	RXE_PAYLOAD_MASK	66,1478
+	RXE_REQ_MASK	68,1517
+	RXE_ACK_MASK	69,1558
+	RXE_SEND_MASK	70,1599
+	RXE_WRITE_MASK	71,1641
+	RXE_READ_MASK	72,1684
+	RXE_ATOMIC_MASK	73,1726
+	RXE_RWR_MASK	75,1771
+	RXE_COMP_MASK	76,1812
+	RXE_START_MASK	78,1855
+	RXE_MIDDLE_MASK	79,1898
+	RXE_END_MASK	80,1942
+	RXE_LOOPBACK_MASK	82,1985
+	RXE_READ_OR_ATOMIC_MASK	84,2032
+	RXE_WRITE_OR_SEND_MASK	85,2094
+	RXE_READ_OR_WRITE_MASK	86,2154
+#define OPCODE_NONE	89,2218
+#define RXE_NUM_OPCODE	90,2244
+struct rxe_opcode_info 92,2273
+	char			*name;name93,2298
+	enum rxe_hdr_mask	mask;94,2313
+	int			length;95,2338
+	int			offset[offset96,2353
+
+rxe_qp.c,716
+static int rxe_qp_chk_cap(18,418
+int rxe_qp_chk_init(59,1352
+static int alloc_rd_atomic_resources(109,2329
+static void free_rd_atomic_resources(121,2582
+void free_rd_atomic_resource(136,2887
+static void cleanup_rd_atomic_resources(147,3141
+static void rxe_qp_init_misc(160,3395
+static int rxe_qp_init_req(200,4174
+static int rxe_qp_init_resp(272,6318
+int rxe_qp_from_init(323,7556
+int rxe_qp_to_init(378,8611
+int rxe_qp_chk_attr(406,9335
+static void rxe_qp_reset(492,11322
+static void rxe_qp_drain(549,12499
+void rxe_qp_error(564,12839
+int rxe_qp_from_attr(581,13226
+int rxe_qp_to_attr(738,17139
+void rxe_qp_destroy(774,17967
+static void rxe_qp_do_cleanup(797,18507
+void rxe_qp_cleanup(834,19231
+
+rxe_mcast.c,231
+static struct rxe_mc_grp *create_grp(create_grp11,286
+int rxe_mcast_get_grp(37,788
+int rxe_mcast_add_grp_elem(67,1399
+int rxe_mcast_drop_grp_elem(111,2240
+void rxe_drop_all_mcast_groups(146,3035
+void rxe_mc_cleanup(172,3586
+
+rxe_verbs.c,2067
+static int rxe_query_device(15,378
+static int rxe_query_port(28,619
+static int rxe_query_pkey(53,1259
+static int rxe_modify_device(63,1434
+static int rxe_modify_port(83,1942
+static enum rdma_link_layer rxe_get_link_layer(100,2333
+static int rxe_alloc_ucontext(106,2466
+static void rxe_dealloc_ucontext(114,2683
+static int rxe_port_immutable(121,2808
+static int rxe_alloc_pd(140,3245
+static int rxe_dealloc_pd(148,3444
+static int rxe_create_ah(156,3585
+static int rxe_modify_ah(205,4581
+static int rxe_query_ah(219,4850
+static int rxe_destroy_ah(229,5064
+static int post_one_recv(238,5213
+static int rxe_create_srq(283,6129
+static int rxe_modify_srq(325,6940
+static int rxe_query_srq(357,7559
+static int rxe_destroy_srq(370,7837
+static int rxe_post_srq_recv(382,8067
+static int rxe_create_qp(406,8522
+static int rxe_modify_qp(454,9388
+static int rxe_query_qp(478,9827
+static int rxe_destroy_qp(489,10052
+static int validate_send_wr(499,10235
+static void init_send_wr(526,10748
+static void copy_inline_data_to_wqe(585,12450
+static void init_send_wqe(598,12758
+static int post_one_send(631,13652
+static int rxe_post_send_kernel(663,14378
+static int rxe_post_send(709,15209
+static int rxe_post_recv(732,15695
+static int rxe_create_cq(772,16416
+static int rxe_destroy_cq(802,17089
+static int rxe_resize_cq(812,17252
+static int rxe_poll_cq(839,17747
+static int rxe_peek_cq(860,18237
+static int rxe_req_notify_cq(870,18446
+static struct ib_mr *rxe_get_dma_mr(rxe_get_dma_mr891,18933
+static struct ib_mr *rxe_reg_user_mr(rxe_reg_user_mr908,19270
+static struct ib_mr *rxe_alloc_mr(rxe_alloc_mr943,19866
+static int rxe_map_mr_sg(981,20533
+static int rxe_attach_mcast(1002,21040
+static int rxe_detach_mcast(1020,21427
+static ssize_t parent_show(1028,21640
+static struct attribute *rxe_dev_attributes[rxe_dev_attributes1039,21918
+static const struct attribute_group rxe_attr_group 1044,22002
+static int rxe_enable_driver(1048,22091
+static const struct ib_device_ops rxe_dev_ops 1057,22325
+int rxe_register_device(1120,24324
+
+rxe_pool.h,1611
+#define RXE_POOL_H8,221
+#define RXE_POOL_ALIGN	10,241
+#define RXE_POOL_CACHE_FLAGS	11,270
+enum rxe_pool_flags 13,304
+	RXE_POOL_INDEX	14,326
+	RXE_POOL_KEY	15,353
+	RXE_POOL_NO_ALLOC	16,378
+enum rxe_elem_type 19,411
+	RXE_TYPE_UC,20,432
+	RXE_TYPE_PD,21,446
+	RXE_TYPE_AH,22,460
+	RXE_TYPE_SRQ,23,474
+	RXE_TYPE_QP,24,489
+	RXE_TYPE_CQ,25,503
+	RXE_TYPE_MR,26,517
+	RXE_TYPE_MW,27,531
+	RXE_TYPE_MC_GRP,28,545
+	RXE_TYPE_MC_ELEM,29,563
+	RXE_NUM_TYPES,30,582
+struct rxe_pool_entry 35,646
+	struct rxe_pool		*pool;pool36,670
+	struct kref		ref_cnt;37,695
+	struct list_head	list;38,718
+	struct rb_node		key_node;41,769
+	struct rb_node		index_node;44,825
+	u32			index;45,854
+struct rxe_pool 48,872
+	struct rxe_dev		*rxe;rxe49,890
+	rwlock_t		pool_lock;50,913
+	size_t			elem_size;51,970
+	void			(*cleanup)cleanup52,991
+	enum rxe_pool_flags	flags;53,1039
+	enum rxe_elem_type	type;54,1067
+	unsigned int		max_elem;56,1094
+	atomic_t		num_elem;57,1119
+		struct rb_root		tree;61,1179
+		unsigned long		*table;table62,1203
+		u32			last;63,1228
+		u32			max_index;64,1242
+		u32			min_index;65,1261
+	} index;66,1280
+		struct rb_root		tree;70,1327
+		size_t			key_offset;71,1351
+		size_t			key_size;72,1374
+	} key;73,1395
+#define rxe_add_to_pool(94,2053
+#define rxe_add_index_locked(101,2310
+#define rxe_add_index(105,2434
+#define rxe_drop_index_locked(112,2646
+#define rxe_drop_index(116,2774
+#define rxe_add_key_locked(123,3015
+#define rxe_add_key(127,3154
+#define rxe_drop_key_locked(132,3346
+#define rxe_drop_key(136,3468
+#define rxe_add_ref(156,4138
+#define rxe_drop_ref(159,4234
+
+rxe_resp.c,2252
+enum resp_states 13,288
+	RESPST_NONE,14,307
+	RESPST_GET_REQ,15,321
+	RESPST_CHK_PSN,16,338
+	RESPST_CHK_OP_SEQ,17,355
+	RESPST_CHK_OP_VALID,18,375
+	RESPST_CHK_RESOURCE,19,397
+	RESPST_CHK_LENGTH,20,419
+	RESPST_CHK_RKEY,21,439
+	RESPST_EXECUTE,22,457
+	RESPST_READ_REPLY,23,474
+	RESPST_COMPLETE,24,494
+	RESPST_ACKNOWLEDGE,25,512
+	RESPST_CLEANUP,26,533
+	RESPST_DUPLICATE_REQUEST,27,550
+	RESPST_ERR_MALFORMED_WQE,28,577
+	RESPST_ERR_UNSUPPORTED_OPCODE,29,604
+	RESPST_ERR_MISALIGNED_ATOMIC,30,636
+	RESPST_ERR_PSN_OUT_OF_SEQ,31,667
+	RESPST_ERR_MISSING_OPCODE_FIRST,32,695
+	RESPST_ERR_MISSING_OPCODE_LAST_C,33,729
+	RESPST_ERR_MISSING_OPCODE_LAST_D1E,34,764
+	RESPST_ERR_TOO_MANY_RDMA_ATM_REQ,35,801
+	RESPST_ERR_RNR,36,836
+	RESPST_ERR_RKEY_VIOLATION,37,853
+	RESPST_ERR_INVALIDATE_RKEY,38,881
+	RESPST_ERR_LENGTH,39,910
+	RESPST_ERR_CQ_OVERFLOW,40,930
+	RESPST_ERROR,41,955
+	RESPST_RESET,42,970
+	RESPST_DONE,43,985
+	RESPST_EXIT,44,999
+static char *resp_state_name[resp_state_name47,1017
+void rxe_resp_queue_pkt(82,2505
+static inline enum resp_states get_req(95,2823
+static enum resp_states check_psn(120,3337
+static enum resp_states check_op_seq(164,4210
+static enum resp_states check_op_valid(254,6607
+static enum resp_states get_srq_wqe(292,7431
+static enum resp_states check_resource(342,8739
+static enum resp_states check_length(388,9813
+static enum resp_states check_rkey(403,10060
+static enum resp_states send_data_in(517,12501
+static enum resp_states write_data_in(531,12842
+static enum resp_states process_atomic(555,13381
+static struct sk_buff *prepare_ack_packet(prepare_ack_packet594,14203
+static enum resp_states read_reply(647,15321
+static int invalidate_rkey(755,17818
+static enum resp_states execute(766,18139
+static enum resp_states do_complete(834,19859
+static int send_ack(938,22453
+static int send_atomic_ack(960,22879
+static enum resp_states acknowledge(996,23638
+static enum resp_states cleanup(1012,24082
+static struct resp_res *find_resource(find_resource1032,24411
+static enum resp_states duplicate_request(1051,24760
+static void do_class_ac_error(1133,26772
+static enum resp_states do_class_d1e_error(1143,27023
+static void rxe_drain_req_pkts(1177,27773
+int rxe_responder(1195,28134
+
+rxe_recv.c,347
+static int check_type_state(13,336
+static void set_bad_pkey_cntr(63,1308
+static void set_qkey_viol_cntr(71,1521
+static int check_keys(79,1731
+static int check_addr(110,2425
+static int hdr_check(170,3983
+static inline void rxe_rcv_pkt(225,5018
+static void rxe_rcv_mcast_pkt(233,5210
+static int rxe_chk_dgid(327,7456
+void rxe_rcv(359,8225
+
+rxe_net.c,1362
+static struct rxe_recv_sockets recv_sockets;21,502
+int rxe_mcast_add(23,548
+int rxe_mcast_delete(34,767
+static struct dst_entry *rxe_find_route4(rxe_find_route445,989
+static struct dst_entry *rxe_find_route6(rxe_find_route668,1537
+static struct dst_entry *rxe_find_route6(rxe_find_route6102,2279
+static struct dst_entry *rxe_find_route(rxe_find_route111,2432
+static int rxe_udp_encap_recv(153,3473
+static struct socket *rxe_setup_udp_tunnel(rxe_setup_udp_tunnel191,4234
+static void rxe_release_udp_tunnel(222,4847
+static void prepare_udp_hdr(228,4946
+static void prepare_ipv4_hdr(243,5252
+static void prepare_ipv6_hdr(273,5974
+static int prepare4(296,6685
+static int prepare6(322,7384
+int rxe_prepare(347,8020
+static void rxe_skb_tx_dtor(362,8359
+static int rxe_send(375,8665
+static int rxe_loopback(408,9468
+int rxe_xmit_packet(427,9835
+struct sk_buff *rxe_init_packet(rxe_init_packet468,10707
+const char *rxe_parent_name(rxe_parent_name527,12095
+int rxe_net_add(532,12197
+static void rxe_port_event(552,12518
+void rxe_port_up(565,12760
+void rxe_port_down(577,13011
+void rxe_set_port_state(589,13264
+static int rxe_notify(597,13424
+static struct notifier_block rxe_net_notifier 639,14317
+static int rxe_net_ipv4_init(643,14401
+static int rxe_net_ipv6_init(656,14667
+void rxe_net_exit(677,15132
+int rxe_net_init(684,15298
+
+rxe_loc.h,574
+#define RXE_LOC_H8,220
+struct rxe_mmap_info 57,1677
+	struct list_head	pending_mmaps;58,1700
+	struct ib_ucontext	*context;context59,1733
+	struct kref		ref;60,1763
+	void			*obj;obj61,1782
+	struct mminfo info;63,1797
+static inline int qp_num(136,4796
+static inline enum ib_qp_type qp_type(141,4870
+static inline enum ib_qp_state qp_state(146,4958
+static inline int qp_mtu(151,5049
+static inline int rcv_wqe_size(159,5223
+static inline void rxe_advance_resp_resource(167,5417
+#define IB_SRQ_INIT_MASK 178,5702
+static inline unsigned int wr_opcode_mask(206,6706
+
+rxe_icrc.c,156
+int rxe_icrc_init(18,413
+static __be32 rxe_crc32(43,967
+static __be32 rxe_icrc_hdr(72,1671
+int rxe_icrc_check(140,3587
+void rxe_icrc_generate(175,4419
+
+rxe_queue.c,217
+int do_mmap_info(12,288
+inline void rxe_queue_reset(46,931
+struct rxe_queue *rxe_queue_init(rxe_queue_init55,1239
+static int resize_finish(111,2521
+int rxe_queue_resize(146,3357
+void rxe_queue_cleanup(191,4387
+
+rxe_req.c,714
+static inline void retry_first_write_send(17,404
+static void req_retry(41,944
+void rnr_nak_timer(102,2323
+static struct rxe_send_wqe *req_next_wqe(req_next_wqe110,2512
+static int next_opcode_rc(179,4190
+static int next_opcode_uc(251,6148
+static int next_opcode(302,7533
+static inline int check_init_depth(333,8073
+static inline int get_mtu(353,8428
+static struct sk_buff *init_req_packet(init_req_packet363,8637
+static int finish_packet(456,11042
+static void update_wqe_state(491,11768
+static void update_wqe_psn(503,12027
+static void save_state(526,12642
+static void rollback_state(537,12951
+static void update_state(548,13255
+static int rxe_do_local_ops(564,13684
+int rxe_requester(614,14762
+
+rxe_hdr.h,7177
+#define RXE_HDR_H8,220
+struct rxe_pkt_info 14,430
+	struct rxe_dev		*rxe;rxe15,452
+	struct rxe_qp		*qp;qp16,506
+	struct rxe_send_wqe	*wqe;wqe17,554
+	u8			*hdr;hdr18,597
+	u32			mask;19,630
+	u32			psn;20,672
+	u16			pkey_index;21,709
+	u16			paylen;22,751
+	u8			port_num;23,794
+	u8			opcode;24,837
+static inline struct rxe_pkt_info *SKB_TO_PKT(SKB_TO_PKT28,933
+static inline struct sk_buff *PKT_TO_SKB(PKT_TO_SKB34,1092
+#define RXE_ICRC_SIZE	55,1848
+#define RXE_MAX_HDR_LENGTH	56,1875
+struct rxe_bth 61,2094
+	u8			opcode;62,2111
+	u8			flags;63,2125
+	__be16			pkey;64,2138
+	__be32			qpn;65,2154
+	__be32			apsn;66,2169
+#define BTH_TVER	69,2189
+#define BTH_DEF_PKEY	70,2211
+#define BTH_SE_MASK	72,2243
+#define BTH_MIG_MASK	73,2271
+#define BTH_PAD_MASK	74,2300
+#define BTH_TVER_MASK	75,2329
+#define BTH_FECN_MASK	76,2359
+#define BTH_BECN_MASK	77,2395
+#define BTH_RESV6A_MASK	78,2431
+#define BTH_QPN_MASK	79,2469
+#define BTH_ACK_MASK	80,2504
+#define BTH_RESV7_MASK	81,2539
+#define BTH_PSN_MASK	82,2576
+static inline u8 __bth_opcode(84,2612
+static inline void __bth_set_opcode(91,2708
+static inline u8 __bth_se(98,2823
+static inline void __bth_set_se(105,2935
+static inline u8 __bth_mig(115,3094
+static inline void __bth_set_mig(122,3208
+static inline u8 __bth_pad(132,3371
+static inline void __bth_set_pad(139,3485
+static inline u8 __bth_tver(147,3648
+static inline void __bth_set_tver(154,3757
+static inline u16 __bth_pkey(162,3918
+static inline void __bth_set_pkey(169,4024
+static inline u32 __bth_qpn(176,4145
+static inline void __bth_set_qpn(183,4264
+static inline int __bth_fecn(192,4474
+static inline void __bth_set_fecn(199,4602
+static inline int __bth_becn(209,4793
+static inline void __bth_set_becn(216,4921
+static inline u8 __bth_resv6a(226,5112
+static inline void __bth_set_resv6a(233,5244
+static inline int __bth_ack(240,5368
+static inline void __bth_set_ack(247,5495
+static inline void __bth_set_resv7(257,5683
+static inline u32 __bth_psn(264,5807
+static inline void __bth_set_psn(271,5927
+static inline u8 bth_opcode(280,6126
+static inline void bth_set_opcode(285,6217
+static inline u8 bth_se(290,6330
+static inline void bth_set_se(295,6413
+static inline u8 bth_mig(300,6511
+static inline void bth_set_mig(305,6596
+static inline u8 bth_pad(310,6697
+static inline void bth_set_pad(315,6782
+static inline u8 bth_tver(320,6883
+static inline void bth_set_tver(325,6970
+static inline u16 bth_pkey(330,7075
+static inline void bth_set_pkey(335,7163
+static inline u32 bth_qpn(340,7269
+static inline void bth_set_qpn(345,7355
+static inline int bth_fecn(350,7457
+static inline void bth_set_fecn(355,7545
+static inline int bth_becn(360,7651
+static inline void bth_set_becn(365,7739
+static inline u8 bth_resv6a(370,7845
+static inline void bth_set_resv6a(375,7936
+static inline int bth_ack(380,8030
+static inline void bth_set_ack(385,8116
+static inline void bth_set_resv7(390,8218
+static inline u32 bth_psn(395,8310
+static inline void bth_set_psn(400,8396
+static inline void bth_init(405,8498
+struct rxe_rdeth 428,9220
+	__be32			een;429,9239
+#define RDETH_EEN_MASK	432,9258
+static inline u8 __rdeth_een(434,9296
+static inline void __rdeth_set_een(441,9424
+static inline u8 rdeth_een(448,9566
+static inline void rdeth_set_een(454,9701
+struct rxe_deth 463,10052
+	__be32			qkey;464,10070
+	__be32			sqp;465,10086
+#define GSI_QKEY	468,10105
+#define DETH_SQP_MASK	469,10136
+static inline u32 __deth_qkey(471,10173
+static inline void __deth_set_qkey(478,10283
+static inline u32 __deth_sqp(485,10408
+static inline void __deth_set_sqp(492,10532
+static inline u32 deth_qkey(499,10669
+static inline void deth_set_qkey(505,10804
+static inline u32 deth_sqp(511,10957
+static inline void deth_set_sqp(517,11090
+struct rxe_reth 526,11434
+	__be64			va;527,11452
+	__be32			rkey;528,11466
+	__be32			len;529,11482
+static inline u64 __reth_va(532,11501
+static inline void __reth_set_va(539,11607
+static inline u32 __reth_rkey(546,11724
+static inline void __reth_set_rkey(553,11834
+static inline u32 __reth_len(560,11959
+static inline void __reth_set_len(567,12067
+static inline u64 reth_va(574,12188
+static inline void reth_set_va(580,12319
+static inline u32 reth_rkey(586,12464
+static inline void reth_set_rkey(592,12599
+static inline u32 reth_len(598,12752
+static inline void reth_set_len(604,12885
+struct rxe_atmeth 613,13231
+	__be64			va;614,13251
+	__be32			rkey;615,13265
+	__be64			swap_add;616,13281
+	__be64			comp;617,13301
+} __packed;618,13317
+static inline u64 __atmeth_va(620,13330
+static inline void __atmeth_set_va(627,13444
+static inline u32 __atmeth_rkey(634,13569
+static inline void __atmeth_set_rkey(641,13687
+static inline u64 __atmeth_swap_add(648,13820
+static inline void __atmeth_set_swap_add(655,13946
+static inline u64 __atmeth_comp(662,14095
+static inline void __atmeth_set_comp(669,14213
+static inline u64 atmeth_va(676,14346
+static inline void atmeth_set_va(682,14483
+static inline u32 atmeth_rkey(688,14634
+static inline void atmeth_set_rkey(694,14775
+static inline u64 atmeth_swap_add(700,14934
+static inline void atmeth_set_swap_add(706,15083
+static inline u64 atmeth_comp(712,15258
+static inline void atmeth_set_comp(718,15399
+struct rxe_aeth 727,15752
+	__be32			smsn;728,15770
+#define AETH_SYN_MASK	731,15790
+#define AETH_MSN_MASK	732,15826
+enum aeth_syndrome 734,15863
+	AETH_TYPE_MASK	735,15884
+	AETH_ACK	736,15909
+	AETH_RNR_NAK	737,15928
+	AETH_RSVD	738,15951
+	AETH_NAK	739,15971
+	AETH_ACK_UNLIMITED	740,15990
+	AETH_NAK_PSN_SEQ_ERROR	741,16018
+	AETH_NAK_INVALID_REQ	742,16050
+	AETH_NAK_REM_ACC_ERR	743,16080
+	AETH_NAK_REM_OP_ERR	744,16110
+	AETH_NAK_INV_RD_REQ	745,16139
+static inline u8 __aeth_syn(748,16172
+static inline void __aeth_set_syn(755,16304
+static inline u32 __aeth_msn(764,16518
+static inline void __aeth_set_msn(771,16643
+static inline u8 aeth_syn(780,16850
+static inline void aeth_set_syn(786,16982
+static inline u32 aeth_msn(792,17130
+static inline void aeth_set_msn(798,17263
+struct rxe_atmack 807,17613
+	__be64			orig;808,17633
+static inline u64 __atmack_orig(811,17653
+static inline void __atmack_set_orig(818,17771
+static inline u64 atmack_orig(825,17904
+static inline void atmack_set_orig(831,18045
+struct rxe_immdt 840,18404
+	__be32			imm;841,18423
+static inline __be32 __immdt_imm(844,18442
+static inline void __immdt_set_imm(851,18544
+static inline __be32 immdt_imm(858,18659
+static inline void immdt_set_imm(864,18798
+struct rxe_ieth 873,19154
+	__be32			rkey;874,19172
+static inline u32 __ieth_rkey(877,19192
+static inline void __ieth_set_rkey(884,19302
+static inline u32 ieth_rkey(891,19427
+static inline void ieth_set_rkey(897,19562
+enum rxe_hdr_length 903,19715
+	RXE_BTH_BYTES	904,19737
+	RXE_DETH_BYTES	905,19779
+	RXE_IMMDT_BYTES	906,19823
+	RXE_RETH_BYTES	907,19869
+	RXE_AETH_BYTES	908,19913
+	RXE_ATMACK_BYTES	909,19957
+	RXE_ATMETH_BYTES	910,20004
+	RXE_IETH_BYTES	911,20051
+	RXE_RDETH_BYTES	912,20095
+static inline size_t header_size(915,20145
+static inline void *payload_addr(payload_addr920,20249
+static inline size_t payload_size(925,20377
+
+rxe.c,463
+bool rxe_initialized;16,438
+void rxe_dealloc(21,564
+static void rxe_init_device_param(41,1118
+static void rxe_init_port_param(80,2656
+static void rxe_init_ports(108,3788
+static int rxe_init_pools(119,4063
+static int rxe_init(198,5646
+void rxe_set_mtu(221,6037
+int rxe_add(238,6500
+static int rxe_newlink(251,6709
+static struct rdma_link_ops rxe_link_ops 279,7248
+static int __init rxe_module_init(284,7338
+static void __exit rxe_module_exit(298,7536
